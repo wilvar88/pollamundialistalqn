@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polla LQN - Rumbo al Mundial</title>
+    <link rel="stylesheet" href="Style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <!-- ========================= ESCENARIO TÚNEL ========================= -->
+    <div class="escenario" id="bg-animado">
+        <div class="tunnel-overlay" id="tunnel-overlay"></div>
+        <div class="capa" style="--color-capa: #ff8c00; --escala: 8.5; --retraso: 1.0s; z-index: 1;"><div class="numero-2">2</div><div class="numero-6">6</div></div>
+        <div class="capa" style="--color-capa: #8A2BE2; --escala: 6.2; --retraso: 0.8s; z-index: 2;"><div class="numero-2">2</div><div class="numero-6">6</div></div>
+        <div class="capa" style="--color-capa: #800000; --escala: 4.5; --retraso: 0.6s; z-index: 3;"><div class="numero-2">2</div><div class="numero-6">6</div></div>
+        <div class="capa" style="--color-capa: #ff00ff; --escala: 3.2; --retraso: 0.4s; z-index: 4;"><div class="numero-2">2</div><div class="numero-6">6</div></div>
+        <div class="capa" style="--color-capa: #00ffff; --escala: 2.2; --retraso: 0.2s; z-index: 5;"><div class="numero-2">2</div><div class="numero-6">6</div></div>
+        <div class="capa" style="--color-capa: #00ff00; --escala: 1.5; --retraso: 0.1s; z-index: 6;"><div class="numero-2">2</div><div class="numero-6">6</div></div>
+        <div class="capa" style="--color-capa: #ff0000; --escala: 1.1; --retraso: 0s; z-index: 7;"><div class="numero-2">2</div><div class="numero-6">6</div></div>
+        <canvas id="canvas-confeti" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:15;pointer-events:none;"></canvas>
+        <div class="contenido-frente">
+            <div class="titulo titulo-superior"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Soccerball.svg" class="decoracion balon-izq" alt="Balón">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Soccerball.svg" class="decoracion balon-der" alt="Balón">
+            <img src="vuvuzela.png" class="decoracion vuvu-izq" alt="Vuvuzela">
+            <img src="vuvuzela.png" class="decoracion vuvu-der" alt="Vuvuzela">
+            <div class="capa" style="--color-capa:#ffffff;--escala:0.5;--retraso:0s;z-index:10;">
+                <div class="numero-2">2</div><div class="espaciador"></div><div class="numero-6">6</div>
+            </div>
+            <img class="trofeo" src="trofeo.png" alt="Trofeo">
+        </div>
+    </div>
+
+    <!-- ========================= LOGIN ========================= -->
+    <div id="login-container" class="glass-panel">
+        <div class="logo">
+            <i class="fa-solid fa-trophy" style="font-size:2rem;"></i>
+            <div style="display:flex;flex-direction:column;">
+                <h1 style="font-size:1.8rem;line-height:1;">Polla LQN</h1>
+                <span style="font-size:1rem;">Mundial 2026</span>
+            </div>
+        </div>
+        <p style="color:var(--text-muted);margin-bottom:5px;">Ingresa para realizar tus predicciones.</p>
+        <div class="input-group">
+            <i class="fa-solid fa-id-card"></i>
+            <input type="text" id="identificacion" placeholder="Tu Número de Identificación" autocomplete="off">
+        </div>
+        <button id="btn-login" class="btn-premium" onclick="handleLogin()">
+            Ingresar <i class="fa-solid fa-arrow-right" style="margin-left:8px;"></i>
+        </button>
+        <div id="login-error" class="error-msg" style="display:none;">Identificación no válida</div>
+    </div>
+
+    <!-- ========================= APP PRINCIPAL ========================= -->
+    <div id="app-container" class="glass-container" style="display:none;">
+        <header class="header">
+            <div class="logo">
+                <i class="fa-solid fa-trophy"></i>
+                <h1>Polla LQN <span>Mundial 2026</span></h1>
+            </div>
+            <div class="user-minibar" style="width:100%;">
+                <img id="user-foto" src="" alt="Perfil" onclick="showProfileCard()" title="Ver mi perfil" style="cursor:pointer;">
+                <div class="info">
+                    <h2 id="user-nombre">Nombre</h2>
+                    <span id="user-cargo">Cargo</span>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button class="icon-btn" title="Ver Reglas" onclick="showRulesModal()"><i class="fa-solid fa-circle-info"></i></button>
+                    <!-- Ícono de administración — visible solo para admin -->
+                    <button class="icon-btn" id="btn-admin" title="Administración" onclick="handleAdminAccess()" style="display:none;"><i class="fa-solid fa-gear"></i></button>
+                    <button class="icon-btn" title="Cerrar Sesión" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+            <nav class="tabs">
+                <button class="tab-btn active" onclick="switchTab('encuentros',this)"><i class="fa-regular fa-calendar-days"></i> Encuentros</button>
+                <button class="tab-btn" onclick="switchTab('mis-resultados',this)"><i class="fa-solid fa-chart-pie"></i> Mis Predicciones</button>
+                <button class="tab-btn" onclick="switchTab('ranking',this)"><i class="fa-solid fa-ranking-star"></i> Ranking</button>
+            </nav>
+        </header>
+
+        <main class="content-area">
+            <!-- ===== Tab Encuentros ===== -->
+            <section id="tab-encuentros" class="tab-content active">
+                <!-- Sub-navegación por fases -->
+                <div class="fase-nav" id="fase-nav">
+                    <button class="fase-btn active" id="fase-btn-grupos" onclick="switchFase('grupos',this)">
+                        <span class="fase-label">Grupos</span>
+                        <span class="fase-pts-icon" title="Ver puntuación de esta fase" onclick="showFaseInfo('grupos',event)">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                    </button>
+                    <button class="fase-btn" id="fase-btn-dieciseis" onclick="switchFase('dieciseis',this)">
+                        <span class="fase-label">16avos</span>
+                        <span class="fase-pts-icon" title="Ver puntuación de esta fase" onclick="showFaseInfo('dieciseis',event)">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                    </button>
+                    <button class="fase-btn" id="fase-btn-octavos" onclick="switchFase('octavos',this)">
+                        <span class="fase-label">8vos</span>
+                        <span class="fase-pts-icon" title="Ver puntuación de esta fase" onclick="showFaseInfo('octavos',event)">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                    </button>
+                    <button class="fase-btn" id="fase-btn-cuartos" onclick="switchFase('cuartos',this)">
+                        <span class="fase-label">4tos</span>
+                        <span class="fase-pts-icon" title="Ver puntuación de esta fase" onclick="showFaseInfo('cuartos',event)">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                    </button>
+                    <button class="fase-btn" id="fase-btn-semifinal" onclick="switchFase('semifinal',this)">
+                        <span class="fase-label">Semi</span>
+                        <span class="fase-pts-icon" title="Ver puntuación de esta fase" onclick="showFaseInfo('semifinal',event)">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                    </button>
+                    <button class="fase-btn" id="fase-btn-tercero" onclick="switchFase('tercero',this)">
+                        <span class="fase-label">3ro</span>
+                        <span class="fase-pts-icon" title="Ver puntuación de esta fase" onclick="showFaseInfo('tercero',event)">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                    </button>
+                    <button class="fase-btn" id="fase-btn-final" onclick="switchFase('final',this)">
+                        <span class="fase-label">Final</span>
+                        <span class="fase-pts-icon" title="Ver puntuación de esta fase" onclick="showFaseInfo('final',event)">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                    </button>
+                </div>
+
+                <h2 class="section-title" id="encuentros-titulo">Encuentros Disponibles</h2>
+                <div id="matches-grid">
+                    <div class="loader-glass"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p>Cargando partidos...</p></div>
+                </div>
+            </section>
+
+            <!-- ===== Tab Mis Predicciones ===== -->
+            <section id="tab-mis-resultados" class="tab-content">
+                <h2 class="section-title">Mi Historial</h2>
+                <div class="stats-overview glass-panel">
+                    <div class="stat-box"><h3>Puntos Totales</h3><p class="highlight" id="my-total-pts">0</p></div>
+                    <div class="stat-box"><h3>Aciertos Exactos</h3><p id="my-exact-hits">0</p></div>
+                    <div class="stat-box"><h3>Faltan Pronosticar</h3><p id="my-missing-preds">0</p></div>
+                </div>
+                <div id="history-list" class="history-list">
+                    <div class="loader-glass"><i class="fa-solid fa-spinner fa-spin"></i><p>Cargando pronósticos...</p></div>
+                </div>
+            </section>
+
+            <!-- ===== Tab Ranking ===== -->
+            <section id="tab-ranking" class="tab-content">
+                <h2 class="section-title">Ranking General</h2>
+                <div class="ranking-table glass-panel">
+                    <div class="ranking-header">
+                        <span class="pos">Pos</span><span class="name">Participante</span><span class="pts">Puntos</span>
+                    </div>
+                    <div id="ranking-list">
+                        <div class="loader-glass"><i class="fa-solid fa-spinner fa-spin"></i><p>Calculando ranking...</p></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ========================= LOGO ESQUINA INFERIOR DERECHA ========================= -->
+    <div id="logo-corner" class="logo-corner" onclick="toggleLogoCorner()" title="Clic para ampliar">
+        <img src="Logo LQN PollaMund.png" alt="Logo LQN" id="logo-corner-img">
+    </div>
+
+    <!-- ========================= MODALES ========================= -->
+
+    <!-- Modal Bienvenida con Coin Flip -->
+    <div id="modal-welcome" class="modal-overlay">
+        <div class="card-flip-container" id="card-flip-container">
+            <!-- Cara frontal: info colaborador -->
+            <div class="card-face card-front">
+                <h2 style="font-size:1.6rem;color:var(--accent-gold);margin-bottom:5px;">¡Bienvenido/a, <span id="welcome-nombre"></span>!</h2>
+                <p style="color:var(--text-muted);font-size:0.95rem;margin-bottom:20px;"><span id="welcome-cargo"></span></p>
+                <img id="welcome-foto" src="" alt="Perfil" style="width:120px;height:120px;border-radius:50%;border:3px solid var(--accent-gold);object-fit:cover;margin-bottom:15px;box-shadow:0 10px 20px rgba(0,0,0,0.5);">
+                <div class="math-box">
+                    <p style="font-size:1.1rem;color:var(--text-muted);">Puntos Actuales:</p>
+                    <p style="font-size:2.5rem;font-weight:700;color:var(--accent-gold);" id="welcome-pts">0</p>
+                </div>
+                <button class="btn-premium" id="btn-entrar" onclick="doWelcomeFlip()">¡Entrar!</button>
+            </div>
+            <!-- Cara trasera: logo empresa + condiciones + botón -->
+            <div class="card-face card-back">
+                <img src="Logo LQN PollaMund.png" alt="Logo LQN" style="max-width:200px;max-height:140px;object-fit:contain;margin-bottom:16px;filter:drop-shadow(0 0 24px rgba(251,191,36,0.6));">
+                <h2 style="color:var(--accent-gold);font-size:1.6rem;font-weight:700;margin-bottom:4px;">Bienvenid@</h2>
+                <p style="color:var(--text-main);font-size:1rem;font-weight:500;margin-bottom:16px;">Polla Mundialista <strong style="color:var(--accent-gold);">LQN 2026</strong></p>
+                <!-- Condiciones generales -->
+                <div class="terms-box">
+                    <h4 style="color:var(--accent-gold);margin-bottom:8px;font-size:0.9rem;"><i class="fa-solid fa-scroll"></i> Condiciones Generales</h4>
+                    <ul class="terms-list">
+                        <li>🏆 Cada participante realiza sus predicciones de marcador antes de que inicie cada partido.</li>
+                        <li>📏 <strong>Marcador exacto:</strong> puntos según la fase (máx. 66 pts en la Final).</li>
+                        <li>✅ <strong>Resultado correcto</strong> (ganador o empate): puntos parciales según fase.</li>
+                        <li>⏰ Las predicciones se cierran <strong>1 hora antes</strong> del inicio del partido.</li>
+                        <li>🔒 Las fases de eliminación se habilitan <strong>48 horas antes</strong> del primer partido de cada fase.</li>
+                        <li>🚫 Queda prohibido compartir o transferir predicciones entre participantes.</li>
+                        <li>⚖️ El administrador podrá corregir o bloquear fases en caso de cambios oficiales de la FIFA.</li>
+                        <li>🌟 El ranking final se determina por puntos acumulados en todas las fases del torneo.</li>
+                    </ul>
+                </div>
+                <button class="btn-premium" style="margin-top:16px;max-width:260px;" onclick="continueFromFlip()">
+                    <i class="fa-solid fa-arrow-right"></i> Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reglas -->
+    <div id="modal-rules" class="modal-overlay" onclick="closeModalsOnBg(event)">
+        <div class="modal-glass">
+            <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="color:var(--accent-gold);margin-bottom:15px;">Sistema de Puntuación</h3>
+            <div class="rules-content">
+                <div class="math-box" style="text-align:center;padding:15px;">
+                    <p style="font-size:1.1rem">Puntos por fase:</p>
+                </div>
+                <table class="puntos-table">
+                    <thead><tr><th>Fase</th><th>Exacto</th><th>Resultado</th></tr></thead>
+                    <tbody>
+                        <tr><td>Grupos</td><td>10 pts</td><td>5 pts</td></tr>
+                        <tr><td>16avos</td><td>15 pts</td><td>10 pts</td></tr>
+                        <tr><td>8vos</td><td>25 pts</td><td>15 pts</td></tr>
+                        <tr><td>4tos</td><td>35 pts</td><td>25 pts</td></tr>
+                        <tr><td>Semifinal</td><td>45 pts</td><td>35 pts</td></tr>
+                        <tr><td>3er lugar</td><td>55 pts</td><td>45 pts</td></tr>
+                        <tr><td>Final</td><td>65 pts</td><td>50 pts</td></tr>
+                    </tbody>
+                </table>
+                <p class="rule-note">* Los resultados aplican tras finalizar el encuentro.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Info de Fase (puntuación por fase) -->
+    <div id="modal-fase-info" class="modal-overlay" onclick="closeModalsOnBg(event)">
+        <div class="modal-glass modal-fase-glass">
+            <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="fase-info-icon"><i class="fa-solid fa-trophy" style="font-size:2.5rem;color:var(--accent-gold);"></i></div>
+            <h3 id="fase-info-titulo" style="color:var(--accent-gold);margin-bottom:10px;font-size:1.4rem;"></h3>
+            <div class="fase-info-puntos">
+                <div class="fase-pts-box exacto">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <span id="fase-info-exacto"></span>
+                    <small>Marcador Exacto</small>
+                </div>
+                <div class="fase-pts-box resultado">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span id="fase-info-resultado"></span>
+                    <small>Resultado (Ganador/Empate)</small>
+                </div>
+            </div>
+            <p id="fase-info-partidos" style="color:var(--text-muted);font-size:0.9rem;margin-top:15px;"></p>
+        </div>
+    </div>
+
+    <!-- Modal Metadata País -->
+    <div id="modal-metadata" class="modal-overlay" onclick="closeModalsOnBg(event)">
+        <div class="modal-glass">
+            <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <img id="meta-flag" src="" alt="Bandera" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--accent-gold);box-shadow:0 5px 15px rgba(0,0,0,0.5);margin-bottom:5px;">
+            <h3 style="color:var(--text-main);margin-bottom:2px;font-weight:400;font-size:1.1rem;">Metadata Mundialista</h3>
+            <h2 id="meta-country" style="color:var(--accent-gold);font-size:1.8rem;text-transform:uppercase;margin-bottom:20px;"></h2>
+            <div class="metadata-content" style="text-align:left;padding:0 10px;font-size:0.95rem;">
+                <p style="margin-bottom:8px;"><strong><i class="fa-solid fa-trophy" style="color:var(--accent-gold);width:20px;"></i> Mundiales Ganados:</strong> <span id="meta-ganados" style="float:right;color:var(--accent-gold);font-weight:bold;font-size:1.1rem;"></span></p>
+                <hr style="border-top:1px solid var(--glass-border);margin:8px 0;border-bottom:none;border-left:none;border-right:none;">
+                <p style="margin-bottom:8px;"><strong><i class="fa-solid fa-earth-americas" style="color:var(--success);width:20px;"></i> Participaciones:</strong> <span id="meta-part" style="float:right;color:var(--text-main);font-weight:600;"></span></p>
+                <hr style="border-top:1px solid var(--glass-border);margin:8px 0;border-bottom:none;border-left:none;border-right:none;">
+                <p style="margin-bottom:8px;"><strong><i class="fa-solid fa-clock-rotate-left" style="color:#60a5fa;width:20px;"></i> Últimas 4 Participaciones:</strong> <br><span id="meta-ultimas" style="display:block;margin-top:5px;color:var(--text-muted);font-size:0.9rem;"></span></p>
+                <hr style="border-top:1px solid var(--glass-border);margin:8px 0;border-bottom:none;border-left:none;border-right:none;">
+                <p style="margin-bottom:8px;"><strong><i class="fa-solid fa-star" style="color:#fca5a5;width:20px;"></i> Jugador Estrella:</strong> <span id="meta-jugador" style="display:block;margin-top:5px;color:var(--text-main);font-style:italic;"></span></p>
+                <hr style="border-top:1px solid var(--glass-border);margin:8px 0;border-bottom:none;border-left:none;border-right:none;">
+                <p style="margin-bottom:8px;"><strong><i class="fa-solid fa-sitemap" style="color:#c084fc;width:20px;"></i> Confederación:</strong> <span id="meta-conf" style="float:right;color:var(--text-main);font-weight:600;"></span></p>
+            </div>
+            <!-- Logo empresa en modal metadata -->
+            <div class="modal-logo-footer">
+                <img src="Logo LQN PollaMund.png" alt="LQN" class="modal-logo-img">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Perfil de Usuario -->
+    <div id="modal-profile" class="modal-overlay" onclick="closeModalsOnBg(event)">
+        <div class="modal-glass profile-card">
+            <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="profile-header">
+                <img id="prof-foto" src="" alt="Perfil" class="prof-avatar">
+                <div class="prof-header-info">
+                    <h2 id="prof-nombre" class="prof-name"></h2>
+                    <span id="prof-cargo" class="prof-cargo"></span>
+                </div>
+            </div>
+            <hr class="prof-divider">
+            <div class="prof-stats">
+                <div class="prof-stat-row">
+                    <span class="prof-stat-label"><i class="fa-solid fa-bullseye"></i> Predicciones</span>
+                    <span class="prof-stat-value">
+                        <span id="prof-pred-hechas" class="val-gold">0</span><span class="val-sep"> / </span><span id="prof-pred-total" class="val-muted">0</span>
+                        <small class="val-hint">realizadas / total</small>
+                    </span>
+                </div>
+                <div class="prof-stat-row">
+                    <span class="prof-stat-label"><i class="fa-solid fa-check-double"></i> Aciertos Exactos</span>
+                    <span class="prof-stat-value">
+                        <span id="prof-aciertos" class="val-gold">0</span><span class="val-sep"> / </span><span id="prof-pred-hechas2" class="val-muted">0</span>
+                        <small class="val-hint">exactos / predichos</small>
+                    </span>
+                </div>
+                <div class="prof-stat-row">
+                    <span class="prof-stat-label"><i class="fa-solid fa-star"></i> Puntos Acumulados</span>
+                    <span class="prof-stat-pts" id="prof-puntos">0</span>
+                </div>
+            </div>
+            <hr class="prof-divider">
+            <div class="prof-footer-logo">
+                <img src="Logo LQN PollaMund.png" alt="LQN" class="prof-logo-img">
+                <span class="prof-logo-label">Polla Mundialista LQN</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Calendario -->
+    <div id="modal-calendar" class="modal-overlay" onclick="closeModalsOnBg(event)">
+        <div class="modal-glass calendar-card">
+            <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="cal-icon-wrap"><i class="fa-solid fa-calendar-plus"></i></div>
+            <h3 id="cal-titulo" style="color:var(--accent-gold);margin:12px 0 4px;font-size:1.1rem;"></h3>
+            <p id="cal-fecha" style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;"></p>
+            <a id="cal-link" href="#" target="_blank" rel="noopener" class="btn-premium cal-btn" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="closeModals()">
+                <i class="fa-brands fa-google"></i> Agregar a Google Calendar
+            </a>
+            <p style="color:var(--text-muted);font-size:0.75rem;margin-top:12px;">Se abrirá Google Calendar para confirmar el evento.</p>
+        </div>
+    </div>
+
+    <!-- Modal Panel Admin -->
+    <div id="modal-admin" class="modal-overlay" onclick="closeModalsOnBg(event)">
+        <div class="modal-glass admin-panel">
+            <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="color:var(--accent-gold);margin-bottom:5px;"><i class="fa-solid fa-gear"></i> Panel de Administración</h3>
+            <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:20px;">Controla la visibilidad de cada fase y partido.</p>
+            <div id="admin-fases-list"></div>
+        </div>
+    </div>
+
+    <!-- Modal Contraseña Admin -->
+    <div id="modal-admin-pass" class="modal-overlay" onclick="closeModalsOnBg(event)">
+        <div class="modal-glass">
+            <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="color:var(--accent-gold);margin-bottom:15px;"><i class="fa-solid fa-lock"></i> Acceso Admin</h3>
+            <div class="input-group" style="margin-bottom:15px;">
+                <i class="fa-solid fa-key"></i>
+                <input type="password" id="admin-pass-input" placeholder="Contraseña de administrador">
+            </div>
+            <button class="btn-premium" onclick="verifyAdminPass()">Acceder</button>
+            <div id="admin-pass-error" class="error-msg" style="display:none;margin-top:10px;">Contraseña incorrecta</div>
+        </div>
+    </div>
+
+    <!-- Loader Global -->
+    <div id="global-loader" class="modal-overlay" style="z-index:9999;">
+        <div class="loader-glass">
+            <i class="fa-solid fa-spinner fa-spin fa-3x" style="color:var(--accent-gold);"></i>
+            <p style="margin-top:15px;font-weight:500;color:white;">Procesando...</p>
+        </div>
+    </div>
+
+    <script src="Script.js"></script>
+
+    <!-- Logo corner: expandir/contraer al clic, auto-colapso en 10s -->
+    <script>
+      let _logoTimer = null;
+
+      function toggleLogoCorner() {
+        const el = document.getElementById('logo-corner');
+        const isExpanded = el.classList.contains('expanded');
+        if (isExpanded) {
+          collapseLogo(el);
+        } else {
+          expandLogo(el);
+        }
+      }
+
+      function expandLogo(el) {
+        el.classList.add('expanded');
+        // Auto-colapso tras 10 segundos si no se hace clic
+        clearTimeout(_logoTimer);
+        _logoTimer = setTimeout(() => collapseLogo(el), 10000);
+      }
+
+      function collapseLogo(el) {
+        el.classList.remove('expanded');
+        clearTimeout(_logoTimer);
+        _logoTimer = null;
+      }
+    </script>
+    <script>
+        document.fonts.ready.then(function() {
+            document.body.classList.add('listo');
+            var myCanvas = document.getElementById('canvas-confeti');
+            var confetiPersonalizado = confetti.create(myCanvas, { resize: true, useWorker: true });
+            setTimeout(function() {
+                var duracion = 3 * 1000;
+                var animacionFin = Date.now() + duracion;
+                (function frame() {
+                    confetiPersonalizado({ particleCount: 6, angle: 115, spread: 50, startVelocity: 55, gravity: 1.1, origin: { x: 0.5, y: 0.55 }, colors: ['#FFD700', '#FFA500', '#ffffff', '#B8860B'] });
+                    confetiPersonalizado({ particleCount: 6, angle: 65, spread: 50, startVelocity: 55, gravity: 1.1, origin: { x: 0.5, y: 0.55 }, colors: ['#FFD700', '#FFA500', '#ffffff', '#B8860B'] });
+                    if (Date.now() < animacionFin) requestAnimationFrame(frame);
+                }());
+            }, 1600);
+            setTimeout(function() {
+                document.getElementById('tunnel-overlay').classList.add('active');
+                const loginContainer = document.getElementById('login-container');
+                loginContainer.classList.add('show-coin');
+            }, 6000);
+        });
+    </script>
+
+    <!-- PIE DE PÁGINA (sin logo, solo texto) -->
+    <footer id="app-footer" class="app-footer">
+        <div class="footer-inner">
+            <div class="footer-text">
+                <p>© 2026 <strong>Wilson Aldemar Varela Muñoz</strong> &mdash; Todos los derechos reservados.</p>
+                <p class="footer-legal">Polla Mundialista LQN™ &mdash; Herramienta de uso interno y exclusivo de LQN. Prohibida su reproducción o uso no autorizado. Protegida por la legislación colombiana de propiedad intelectual y tratados internacionales de derechos de autor.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
